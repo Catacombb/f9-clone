@@ -102,8 +102,9 @@ const BookCallModal: React.FC<BookCallModalProps> = ({ isOpen, onClose }) => {
         onClose();
       }, 3000);
       
-    } catch (err: any) {
-      setError(err.message || 'An error occurred. Please try again.');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred. Please try again.';
+      setError(errorMessage);
       console.error('Error making call:', err);
     } finally {
       setIsSubmitting(false);
@@ -123,7 +124,7 @@ const BookCallModal: React.FC<BookCallModalProps> = ({ isOpen, onClose }) => {
         
         {success ? (
           <div className={styles.successMessage}>
-            <p>Thank you! We'll call you shortly.</p>
+            <p>Thank you! We&apos;ll call you shortly.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className={styles.form}>

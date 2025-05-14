@@ -67,11 +67,11 @@ export async function POST(request: NextRequest) {
       callId: data.id
     }, { status: 200 });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error making call:', error);
     
     return NextResponse.json(
-      { message: 'Internal server error', error: error.toString() },
+      { message: 'Internal server error', error: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

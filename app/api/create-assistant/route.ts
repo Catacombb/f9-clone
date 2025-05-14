@@ -12,6 +12,10 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Get data from request if needed
+    const requestData = await request.json().catch(() => ({}));
+    const customName = requestData.name || "F9 Productions Assistant";
+    
     // Create a new assistant with Vapi
     const response = await fetch('https://api.vapi.ai/assistant', {
       method: 'POST',
@@ -20,7 +24,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        name: "F9 Productions Assistant",
+        name: customName,
         model: {
           provider: "openai",
           model: "gpt-4",
@@ -58,11 +62,11 @@ export async function POST(request: NextRequest) {
       assistantId: data.id
     }, { status: 200 });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating assistant:', error);
     
     return NextResponse.json(
-      { message: 'Internal server error', error: error.toString() },
+      { message: 'Internal server error', error: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

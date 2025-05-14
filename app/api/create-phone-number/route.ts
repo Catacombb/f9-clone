@@ -51,11 +51,11 @@ export async function POST(request: NextRequest) {
       phoneNumber: data.twilioPhoneNumber || "Phone number not available yet"
     }, { status: 200 });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating phone number:', error);
     
     return NextResponse.json(
-      { message: 'Internal server error', error: error.toString() },
+      { message: 'Internal server error', error: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
