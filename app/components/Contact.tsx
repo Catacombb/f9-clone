@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import styles from './Contact.module.css';
+import BookCallModal from './BookCallModal';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ const Contact = () => {
   });
   
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -39,6 +41,14 @@ const Contact = () => {
     setTimeout(() => {
       setFormSubmitted(false);
     }, 5000);
+  };
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
   
   return (
@@ -129,11 +139,13 @@ const Contact = () => {
             <div className={styles.contactCard}>
               <h3>Book A Call</h3>
               <p>Ready to start your project? Schedule a consultation with our team to discuss your vision.</p>
-              <Link href="/#book" className={styles.bookBtn}>Book A Call</Link>
+              <button onClick={openModal} className={styles.bookBtn}>Book A Call</button>
             </div>
           </motion.div>
         </div>
       </div>
+
+      <BookCallModal isOpen={isModalOpen} onClose={closeModal} />
     </section>
   );
 };
