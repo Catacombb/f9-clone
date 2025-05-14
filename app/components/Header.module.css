@@ -1,0 +1,217 @@
+.header {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background-color: var(--white);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 1rem 0;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.nav {
+  display: flex;
+}
+
+.navList {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+}
+
+.navItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.navItem span, 
+.navItem a {
+  padding: 0.5rem 0;
+}
+
+.hasSubmenu {
+  position: relative;
+}
+
+.hasSubmenu:hover .submenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: var(--white);
+  min-width: 220px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  z-index: 10;
+  list-style: none;
+  padding: 1rem 0;
+}
+
+.submenuItem {
+  position: relative;
+  padding: 0.5rem 1.5rem;
+}
+
+.submenuItem:hover {
+  background-color: var(--secondary-color);
+}
+
+.hasSubmenu .submenuItem:hover .nestedSubmenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+
+.nestedSubmenu {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  background-color: var(--white);
+  min-width: 220px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(10px);
+  transition: all 0.3s ease;
+  z-index: 11;
+  list-style: none;
+  padding: 1rem 0;
+}
+
+.nestedSubmenu li {
+  padding: 0.5rem 1.5rem;
+}
+
+.nestedSubmenu li:hover {
+  background-color: var(--secondary-color);
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mobileCta {
+  display: none;
+}
+
+.onboardingBtn {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  background-color: var(--accent-color);
+  color: var(--white);
+  border: none;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.onboardingBtn:hover {
+  opacity: 0.9;
+  background-color: #505050;
+}
+
+.mobileMenuBtn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+@media (max-width: 992px) {
+  .mobileMenuBtn {
+    display: block;
+    z-index: 1001;
+  }
+
+  .nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    max-width: 400px;
+    height: 100vh;
+    background-color: var(--white);
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    padding: 5rem 2rem 2rem;
+    z-index: 1000;
+  }
+
+  .showMenu {
+    right: 0;
+  }
+
+  .navList {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .submenu, .nestedSubmenu {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    box-shadow: none;
+    width: 100%;
+    max-height: 0;
+    overflow: hidden;
+    padding: 0;
+    transition: max-height 0.3s ease;
+  }
+
+  .hasSubmenu:hover .submenu,
+  .hasSubmenu .submenuItem:hover .nestedSubmenu {
+    max-height: 500px;
+  }
+
+  .submenuItem, .nestedSubmenu li {
+    padding-left: 1rem;
+  }
+  
+  .cta {
+    display: none;
+  }
+  
+  .mobileCta {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  
+  .mobileCta a {
+    width: 100%;
+    text-align: center;
+  }
+} 

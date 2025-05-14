@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Using server-side rendering for Vercel deployment
+  trailingSlash: true, // Add trailing slashes to URLs
 };
 
 export default nextConfig;
