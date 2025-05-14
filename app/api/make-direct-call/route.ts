@@ -5,15 +5,33 @@ export async function POST(request: NextRequest) {
   try {
     // Get API key from environment variables
     const VAPI_API_KEY = process.env.VAPI_API_KEY;
+    const PHONE_NUMBER_ID = process.env.VAPI_PHONE_NUMBER_ID;
+    const ASSISTANT_ID = process.env.VAPI_ASSISTANT_ID;
     
     console.log('Environment variables:', {
       VAPI_API_KEY_EXISTS: !!VAPI_API_KEY,
-      VAPI_API_KEY_LENGTH: VAPI_API_KEY ? VAPI_API_KEY.length : 0
+      VAPI_API_KEY_LENGTH: VAPI_API_KEY ? VAPI_API_KEY.length : 0,
+      PHONE_NUMBER_ID: PHONE_NUMBER_ID,
+      ASSISTANT_ID: ASSISTANT_ID
     });
     
     if (!VAPI_API_KEY) {
       return NextResponse.json(
         { message: 'API key not configured' },
+        { status: 500 }
+      );
+    }
+    
+    if (!PHONE_NUMBER_ID) {
+      return NextResponse.json(
+        { message: 'Phone Number ID not configured' },
+        { status: 500 }
+      );
+    }
+    
+    if (!ASSISTANT_ID) {
+      return NextResponse.json(
+        { message: 'Assistant ID not configured' },
         { status: 500 }
       );
     }
@@ -32,34 +50,20 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    console.log('Making direct call with API key:', VAPI_API_KEY.substring(0, 5) + '***');
+    console.log('Making call with API key:', VAPI_API_KEY.substring(0, 5) + '***');
     
+    // Create the request payload according to Vapi's API documentation
     const requestBody = {
-      assistant: {
-        name: "F9 Productions Assistant",
-        firstMessage: `Hello ${name}, this is F9 Productions calling. Thank you for your interest in our services. How can we help you today?`,
-        model: {
-          provider: "openai",
-          model: "gpt-4",
-          messages: [
-            {
-              role: "system",
-              content: `You are a helpful assistant for F9 Productions, an architecture firm. 
-              You're speaking with ${name} who has requested information about our services.
-              Be friendly, professional, and helpful. Answer questions about our architectural services,
-              design process, and how we work with clients. If they ask about pricing, explain that
-              it varies by project scope and you'd be happy to arrange a consultation with one of our architects.
-              Keep responses concise and conversational as this is a phone call.`
-            }
-          ]
-        },
-        voice: {
-          provider: "11labs",
-          voiceId: "ryan" // Using a professional-sounding voice
-        }
-      },
+      phoneNumberId: PHONE_NUMBER_ID,
+      assistantId: ASSISTANT_ID,
       customer: {
         number: phone,
+      },
+      assistantOverrides: {
+        variableValues: {
+          name: name
+        },
+        firstMessage: `Hello ${name}, this is F9 Productions calling. Thank you for your interest in our services. How can we help you today?`
       }
     };
     

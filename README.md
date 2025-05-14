@@ -37,41 +37,58 @@ yarn install
    - Copy `.env.local.example` to `.env.local`
    - Add your Vapi API key to `.env.local`
 
-4. Start the development server
+4. Run the development server
 ```bash
 npm run dev
 # or
 yarn dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 
-## Vapi Integration
+## Setting Up Vapi Integration
 
-The "Book a Call" feature uses Vapi AI to make automated phone calls to users who request a call. Here's how it works:
+To enable the "Book a Call" feature, you need to set up a Vapi account and configure the necessary credentials:
 
-1. User clicks the "Book a Call" button in the Contact section
-2. A modal form pops up asking for name and phone number
-3. When submitted, the form sends a request to the `/api/make-direct-call` API endpoint
-4. The API endpoint uses Vapi to initiate a call to the provided phone number
-5. An AI assistant introduces itself as F9 Productions and engages in conversation with the user
+1. Create an account at [Vapi.ai](https://app.vapi.ai)
+2. Create an assistant in the Vapi dashboard:
+   - Go to the Assistants section
+   - Create a new assistant with appropriate settings for your use case
+   - Configure the assistant with the desired voice, model, and behavior
+   - Copy the Assistant ID and add it to your `.env.local` file as `VAPI_ASSISTANT_ID`
 
-### Vapi Setup
+3. Set up a phone number:
+   - Go to the Phone Numbers section in the Vapi dashboard
+   - Create a new phone number or import an existing one
+   - Copy the Phone Number ID and add it to your `.env.local` file as `VAPI_PHONE_NUMBER_ID`
 
-To use the Vapi integration:
+4. Generate an API key:
+   - Go to Settings > API Keys in the Vapi dashboard
+   - Create a new API key
+   - Copy the API key and add it to your `.env.local` file as `VAPI_API_KEY`
 
-1. Create an account at [Vapi.ai](https://vapi.ai)
-2. Get your API key from the dashboard
-3. Add the API key to your `.env.local` file
+5. Restart your development server for the changes to take effect
+
+When a user submits the "Book a Call" form, the Vapi assistant will call them at the provided phone number.
 
 ## Deployment
 
-This site is designed to be deployed on Vercel:
+This project is designed to be deployed on Vercel. You can deploy it with a few clicks:
 
-1. Push your code to a GitHub repository
-2. Import the repository in Vercel
-3. Add the required environment variables
-4. Deploy
+1. Push your code to a Git repository (GitHub, GitLab, or Bitbucket)
+2. Import your repository on [Vercel](https://vercel.com)
+3. Add your environment variables in the Vercel dashboard
+4. Deploy!
+
+## Built With
+
+- [Next.js](https://nextjs.org/) - The React framework
+- [Framer Motion](https://www.framer.com/motion/) - Animation library
+- [Vapi](https://vapi.ai) - AI voice assistant platform
+
+## License
+
+This project is licensed under the MIT License.
 
 ## Learn More
 
@@ -101,7 +118,3 @@ To customize the website:
 - Replace the placeholder images with real images
 - Add additional components as needed
 - Customize the Vapi assistant's responses in the `make-call/route.ts` file
-
-## License
-
-This project is for demonstration purposes only. The original design belongs to F9 Productions.

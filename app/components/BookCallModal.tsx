@@ -82,7 +82,16 @@ const BookCallModal: React.FC<BookCallModalProps> = ({ isOpen, onClose }) => {
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to schedule call');
+        let errorMessage = data.message || 'Failed to schedule call';
+        
+        // Handle specific error cases
+        if (data.message === 'Phone Number ID not configured') {
+          errorMessage = 'The system is not properly configured. Please contact support.';
+        } else if (data.message === 'Assistant ID not configured') {
+          errorMessage = 'The system is not properly configured. Please contact support.';
+        }
+        
+        throw new Error(errorMessage);
       }
       
       // Show success message
