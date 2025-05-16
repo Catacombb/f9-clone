@@ -216,37 +216,17 @@ const FallbackChatUI = () => {
   );
 };
 
+// Create a named fallback component to fix the display-name ESLint error
+const FallbackComponent = () => <FallbackChatUI />;
+FallbackComponent.displayName = 'FallbackChatbotUI';
+
 // Dynamically import the ChatbotUI with error boundary
 const ChatbotUI = dynamic(() => import('./ChatbotUI').catch(() => {
   console.error('Error loading ChatbotUI component, falling back to stable implementation');
-  return () => <FallbackChatUI />;
+  return FallbackComponent;
 }), { 
   ssr: false,
-  loading: () => (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center',
-      height: '100%',
-      width: '100%'
-    }}>
-      <div className="loading-spinner"></div>
-      <style jsx>{`
-        .loading-spinner {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          border: 3px solid rgba(0, 0, 0, 0.1);
-          border-top-color: #000;
-          animation: spin 1s infinite linear;
-        }
-        
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
-  )
+    loading: () => {    const LoadingComponent = () => (      <div style={{         display: 'flex',         justifyContent: 'center',         alignItems: 'center',        height: '100%',        width: '100%'      }}>        <div className="loading-spinner"></div>        <style jsx>{`          .loading-spinner {            width: 40px;            height: 40px;            border-radius: 50%;            border: 3px solid rgba(0, 0, 0, 0.1);            border-top-color: #000;            animation: spin 1s infinite linear;          }                    @keyframes spin {            to { transform: rotate(360deg); }          }        `}</style>      </div>    );    LoadingComponent.displayName = 'ChatbotUILoading';    return <LoadingComponent />;  }
 });
 
 // The main wrapper component
