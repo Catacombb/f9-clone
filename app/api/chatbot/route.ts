@@ -21,26 +21,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get OpenAI API key from environment variables
-    const apiKey = process.env.OPENAI_API_KEY;
+    // Get OpenRouter API key from environment variables
+    const apiKey = process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
     
     if (!apiKey) {
-      console.error('OpenAI API key is not configured');
+      console.error('OpenRouter API key is not configured');
       return NextResponse.json(
-        { error: 'OpenAI API key is not configured' },
+        { error: 'OpenRouter API key is not configured' },
         { status: 500 }
       );
     }
 
-    // Make request to OpenAI API
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Make request to OpenRouter API
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000', // Your site URL
+        'X-Title': 'F9 Productions Chatbot' // Your site name
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: process.env.OPENROUTER_MODEL || 'anthropic/claude-3-opus', // Can be customized
         messages: body.messages,
         temperature: 0.7,
         max_tokens: 1000
@@ -50,9 +52,9 @@ export async function POST(req: NextRequest) {
     // Check if the response is successful
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('OpenAI API error:', errorData);
+      console.error('OpenRouter API error:', errorData);
       return NextResponse.json(
-        { error: 'Error communicating with OpenAI' },
+        { error: 'Error communicating with OpenRouter' },
         { status: 500 }
       );
     }
