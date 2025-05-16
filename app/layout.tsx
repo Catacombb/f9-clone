@@ -16,8 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* DHTMLX ChatBot CSS */}
-        <link rel="stylesheet" href="https://cdn.dhtmlx.com/chatbot/latest/chatbot.css" />
+        {/* No external chatbot CSS needed */}
       </head>
       <body>
         {children}
