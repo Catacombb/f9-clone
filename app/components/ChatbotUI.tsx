@@ -3,6 +3,44 @@
 import { useEffect, useState } from 'react';
 import Chat, { Bubble, useMessages, MessageProps } from '@chatui/core';
 import '@chatui/core/dist/index.css';
+import ReactMarkdown from 'react-markdown';
+
+// Define the system prompt with detailed knowledge about F9 Productions
+const F9_SYSTEM_PROMPT = `You are the AI customer support assistant for F9 Productions, a premier architecture and design firm serving Colorado. 
+
+COMPANY IDENTITY:
+- Founded in 2009, F9 Productions is an award-winning architecture firm with offices in Longmont and Denver
+- Over 10 years of experience, 1,000+ completed projects, and 100+ clients
+- Sister company F14 Productions handles construction, offering integrated design-build services
+- Brand voice is professional yet friendly, personable while demonstrating expertise
+- Company operates on nine founding principles with responsive communication as a key value (responding within one hour)
+
+PRIMARY SERVICES:
+- Architectural Design: Innovative, functional designs for residential and commercial projects
+- Interior Design: Full-service interior transformation including 3D modeling and visualization
+- Home Remodeling and Additions: Renovating and expanding existing homes throughout Colorado
+- Construction Services: Integrated construction through sister company F14 Productions
+
+PROJECT TYPES:
+- Single-family homes
+- Multi-family homes
+- Mixed-use developments
+- Commercial properties
+
+UNIQUE SELLING POINTS:
+- Integrated design-build approach that sets F9 Productions apart from competitors
+- Every team member has practical construction experience, making designs both beautiful and buildable
+- Deep understanding of Colorado architecture, particularly Boulder and Denver regions
+- Experience addressing unique challenges of building in the Rocky Mountain Region
+
+FORMAT YOUR RESPONSES:
+- Use markdown formatting with **bold** for emphasis on key services, benefits, and terms
+- Include bulleted lists when presenting multiple options or service categories
+- Be conversational, friendly yet professional
+- Highlight the integrated design-build advantage in relevant contexts
+- When answering questions, emphasize F9's experience and practical construction knowledge
+
+When greeting users, provide a friendly welcome that introduces F9 Productions and offers several service categories they might be interested in. Be helpful, creative, and accurate in representing F9 Productions' brand and services.`;
 
 // Define message interface
 interface ChatMessage {
@@ -32,7 +70,7 @@ export default function ChatbotUI() {
     if (isChatOpen && !initialized) {
       appendMsg({
         type: 'text',
-        content: { text: "Hello! I'm the F9 Productions Architecture Assistant. How can I help you today?" },
+        content: { text: "Hello! Welcome to **F9 Productions**—your go-to architecture and design firm in Colorado. Whether you're looking for residential, multi-family, or commercial design expertise, I'm here to assist.\n\nWhat can I help you with today? Are you:\n- Exploring a new **home design** or **renovation**?\n- Planning a **multi-family** or **mixed-use development**?\n- Interested in **commercial** or **hospitality** architecture?\n- Curious about our **design process** or **services**?\n\nLet me know how I can guide you! 🏡✨" },
         position: 'left',
         user: {
           avatar: '/f9-avatar.svg',
@@ -61,9 +99,9 @@ export default function ChatbotUI() {
       setIsTyping(true);
 
       try {
-        // Prepare conversation history
+        // Prepare conversation history with comprehensive system prompt
         const prompt = [
-          { role: "system", content: "You are an architectural assistant for F9 Productions, a premier architecture and design firm serving Colorado. You specialize in residential, multi-family, and commercial architecture. Be helpful, professional, and provide detailed information about architectural concepts, design processes, and F9 Productions services." },
+          { role: "system", content: F9_SYSTEM_PROMPT },
         ];
 
         // Convert ChatUI message format to API format
@@ -128,11 +166,21 @@ export default function ChatbotUI() {
     }
   };
 
-  // Custom renderer for more styling control
+  // Custom renderer for more styling control with markdown support
   const renderMessageContent = (msg: MessageProps) => {
-    return (
-      <Bubble content={typeof msg.content === 'object' ? msg.content.text : String(msg.content)} />
-    );
+    const text = typeof msg.content === 'object' ? msg.content.text : String(msg.content);
+    
+    // For bot messages (left position), render markdown
+    if (msg.position === 'left') {
+      return (
+        <Bubble className="markdown-bubble">
+          <ReactMarkdown>{text}</ReactMarkdown>
+        </Bubble>
+      );
+    }
+    
+    // For user messages (right position), use regular text
+    return <Bubble content={text} />;
   };
 
   return (
@@ -292,16 +340,45 @@ export default function ChatbotUI() {
           display: none; /* Hide navbar since we have our own header */
         }
         
+        /* Message bubbles styling */
         .chat-wrapper :global(.Message .Bubble) {
           background-color: rgba(255, 255, 255, 0.8) !important;
           backdrop-filter: blur(5px) !important;
           -webkit-backdrop-filter: blur(5px) !important;
           border: 1px solid rgba(255, 255, 255, 0.2) !important;
+          padding: 10px 15px !important;
+          line-height: 1.5 !important;
         }
         
         .chat-wrapper :global(.Message.right .Bubble) {
           background-color: rgba(0, 0, 0, 0.7) !important;
           color: white !important;
+        }
+        
+        /* Markdown styling in bubbles */
+        .chat-wrapper :global(.markdown-bubble) {
+          padding: 8px 12px !important;
+        }
+        
+        .chat-wrapper :global(.markdown-bubble p) {
+          margin: 0 0 8px 0;
+        }
+        
+        .chat-wrapper :global(.markdown-bubble p:last-child) {
+          margin-bottom: 0;
+        }
+        
+        .chat-wrapper :global(.markdown-bubble strong) {
+          font-weight: 700;
+        }
+        
+        .chat-wrapper :global(.markdown-bubble ul) {
+          margin: 0;
+          padding-left: 20px;
+        }
+        
+        .chat-wrapper :global(.markdown-bubble li) {
+          margin-bottom: 3px;
         }
         
         .chat-wrapper :global(.Composer) {
