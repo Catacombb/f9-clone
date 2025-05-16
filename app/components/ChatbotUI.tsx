@@ -42,21 +42,14 @@ FORMAT YOUR RESPONSES:
 
 When greeting users, provide a friendly welcome that introduces F9 Productions and offers several service categories they might be interested in. Be helpful, creative, and accurate in representing F9 Productions' brand and services.`;
 
-// Define message interface
-interface ChatMessage {
-  type: 'text' | 'image' | 'file';
-  content: {
-    text?: string;
-    imageUrl?: string;
-    fileUrl?: string;
-    fileName?: string;
-  };
-  position?: 'left' | 'right';
-  hasTime?: boolean;
-  user?: {
-    avatar: string;
-    name: string;
-  };
+// Define interfaces for API communication
+interface ApiMessage {
+  role: string;
+  content: string;
+}
+
+interface ApiResponse {
+  content: string;
 }
 
 export default function ChatbotUI() {
@@ -85,6 +78,14 @@ export default function ChatbotUI() {
     setIsChatOpen(!isChatOpen);
   };
 
+  // Extract text content safely from message
+  const getMessageText = (msg: MessageProps): string => {
+    if (typeof msg.content === 'object' && msg.content !== null) {
+      return (msg.content as { text?: string }).text || '';
+    }
+    return String(msg.content || '');
+  };
+
   // Handle sending messages
   const handleSend = async (type: string, val: string) => {
     if (type === 'text' && val.trim()) {
@@ -100,15 +101,15 @@ export default function ChatbotUI() {
 
       try {
         // Prepare conversation history with comprehensive system prompt
-        const prompt = [
+        const prompt: ApiMessage[] = [
           { role: "system", content: F9_SYSTEM_PROMPT },
         ];
 
         // Convert ChatUI message format to API format
-        const apiMessages = messages.map((msg) => {
+        const apiMessages: ApiMessage[] = messages.map((msg) => {
           return {
             role: msg.position === 'right' ? 'user' : 'assistant',
-            content: typeof msg.content === 'object' && msg.content.text ? msg.content.text : ''
+            content: getMessageText(msg)
           };
         });
 
@@ -133,7 +134,7 @@ export default function ChatbotUI() {
           throw new Error("API error");
         }
 
-        const data = await response.json();
+        const data = await response.json() as ApiResponse;
         
         // Clear typing indicator
         setIsTyping(false);
@@ -168,7 +169,7 @@ export default function ChatbotUI() {
 
   // Custom renderer for more styling control with markdown support
   const renderMessageContent = (msg: MessageProps) => {
-    const text = typeof msg.content === 'object' ? msg.content.text : String(msg.content);
+    const text = getMessageText(msg);
     
     // For bot messages (left position), render markdown
     if (msg.position === 'left') {
