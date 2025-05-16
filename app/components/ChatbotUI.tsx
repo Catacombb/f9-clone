@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Chat, { Bubble, useMessages, MessageProps } from '@chatui/core';
 import '@chatui/core/dist/index.css';
-import ReactMarkdown from 'react-markdown';
+import SimpleMarkdown from './SimpleMarkdown';
 
 // Define the system prompt with detailed knowledge about F9 Productions
 const F9_SYSTEM_PROMPT = `You are the AI customer support assistant for F9 Productions, a premier architecture and design firm serving Colorado. 
@@ -194,7 +194,9 @@ export default function ChatbotUI() {
     if (msg.position === 'left') {
       return (
         <Bubble className="markdown-bubble">
-          <ReactMarkdown>{text}</ReactMarkdown>
+          <div className="markdown-content">
+            <SimpleMarkdown text={text} />
+          </div>
         </Bubble>
       );
     }
@@ -419,6 +421,10 @@ export default function ChatbotUI() {
         }
         
         /* Markdown styling in bubbles */
+        .chat-wrapper :global(.markdown-content) {
+          width: 100%;
+        }
+        
         .chat-wrapper :global(.markdown-bubble) {
           padding: 8px 12px !important;
         }
