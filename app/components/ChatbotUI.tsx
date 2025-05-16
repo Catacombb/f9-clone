@@ -54,7 +54,7 @@ interface ApiResponse {
 
 export default function ChatbotUI() {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const { messages, appendMsg } = useMessages([]);
+  const { messages, appendMsg, setTyping } = useMessages([]);
   const [isTyping, setIsTyping] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
@@ -96,8 +96,13 @@ export default function ChatbotUI() {
         position: 'right',
       });
 
-      // Show typing indicator
+      // Show typing indicator using both methods to ensure it displays
       setIsTyping(true);
+      setTyping(true);
+      
+      // Force minimum typing time for better UX
+      const typingStartTime = Date.now();
+      const minTypingDuration = 1500; // 1.5 seconds minimum typing time
 
       try {
         // Prepare conversation history with comprehensive system prompt
@@ -136,8 +141,15 @@ export default function ChatbotUI() {
 
         const data = await response.json() as ApiResponse;
         
+        // Ensure typing indicator shows for at least minTypingDuration
+        const elapsedTime = Date.now() - typingStartTime;
+        if (elapsedTime < minTypingDuration) {
+          await new Promise(resolve => setTimeout(resolve, minTypingDuration - elapsedTime));
+        }
+        
         // Clear typing indicator
         setIsTyping(false);
+        setTyping(false);
 
         // Bot response
         appendMsg({
@@ -151,7 +163,9 @@ export default function ChatbotUI() {
         });
       } catch (error) {
         console.error("Error:", error);
+        // Clear typing indicator
         setIsTyping(false);
+        setTyping(false);
 
         // Error message
         appendMsg({
@@ -334,20 +348,44 @@ export default function ChatbotUI() {
         /* Enhanced typing indicator styling */
         .chat-wrapper :global(.Typing) {
           padding: 12px 16px !important;
-          background-color: rgba(255, 255, 255, 0.8) !important;
+          background-color: rgba(255, 255, 255, 0.9) !important;
           backdrop-filter: blur(5px) !important;
           -webkit-backdrop-filter: blur(5px) !important;
-          border: 1px solid rgba(255, 255, 255, 0.2) !important;
+          border: 1px solid rgba(0, 0, 0, 0.2) !important;
           border-radius: 18px !important;
-          margin: 8px 0 !important;
+          margin: 12px 0 !important;
           width: fit-content !important;
+          display: flex !important;
+          align-items: center !important;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+          position: relative !important;
+          left: 12px !important;
         }
         
         .chat-wrapper :global(.Typing-dot) {
           background-color: #000000 !important;
-          width: 8px !important;
-          height: 8px !important;
-          margin: 0 2px !important;
+          width: 10px !important;
+          height: 10px !important;
+          margin: 0 3px !important;
+          opacity: 0.8 !important;
+          animation: typingAnimation 1.4s infinite ease-in-out !important;
+        }
+        
+        .chat-wrapper :global(.Typing-dot:nth-child(1)) {
+          animation-delay: 0s !important;
+        }
+        
+        .chat-wrapper :global(.Typing-dot:nth-child(2)) {
+          animation-delay: 0.2s !important;
+        }
+        
+        .chat-wrapper :global(.Typing-dot:nth-child(3)) {
+          animation-delay: 0.4s !important;
+        }
+        
+        @keyframes typingAnimation {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.5); }
         }
         
         .chat-wrapper :global(.MessageContainer) {
