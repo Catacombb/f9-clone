@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Chat, { Bubble, useMessages, MessageProps } from '@chatui/core';
 import '@chatui/core/dist/index.css';
 import ReactMarkdown from 'react-markdown';
@@ -111,7 +111,7 @@ export default function ChatbotUI() {
         ];
 
         // Convert ChatUI message format to API format
-        const apiMessages: ApiMessage[] = messages.map((msg) => {
+        const apiMessages: ApiMessage[] = messages.map((msg: MessageProps) => {
           return {
             role: msg.position === 'right' ? 'user' : 'assistant',
             content: getMessageText(msg)
