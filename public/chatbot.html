@@ -37,6 +37,23 @@
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        
+        /* Enhanced typing animation styles */
+        .dhx_chatbot_message-typing {
+            padding: 10px 20px !important;
+            background-color: rgba(245, 245, 245, 0.9) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+            max-width: 80% !important;
+        }
+        
+        .dhx_chatbot_typing-indicator span {
+            width: 8px !important;
+            height: 8px !important;
+            margin: 0 2px !important;
+            background-color: #333 !important;
+            animation-duration: 1.2s !important;
+        }
     </style>
 </head>
 <body>
@@ -85,11 +102,14 @@
         bot.on("add-message", ({ message }) => {
             if (message.role !== "user") return;
             
-            // Start typing animation
+            // Start typing animation with custom duration
             const typingMessage = {
                 role: "agent",
                 content: "",
-                typing: 1
+                typing: 1,
+                params: {
+                    typingDuration: 2000 // Show typing animation for at least 2 seconds
+                }
             };
             bot.addMessage({ message: typingMessage });
             

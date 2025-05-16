@@ -331,6 +331,25 @@ export default function ChatbotUI() {
           height: 100%;
         }
         
+        /* Enhanced typing indicator styling */
+        .chat-wrapper :global(.Typing) {
+          padding: 12px 16px !important;
+          background-color: rgba(255, 255, 255, 0.8) !important;
+          backdrop-filter: blur(5px) !important;
+          -webkit-backdrop-filter: blur(5px) !important;
+          border: 1px solid rgba(255, 255, 255, 0.2) !important;
+          border-radius: 18px !important;
+          margin: 8px 0 !important;
+          width: fit-content !important;
+        }
+        
+        .chat-wrapper :global(.Typing-dot) {
+          background-color: #000000 !important;
+          width: 8px !important;
+          height: 8px !important;
+          margin: 0 2px !important;
+        }
+        
         .chat-wrapper :global(.MessageContainer) {
           background-color: transparent !important;
         }

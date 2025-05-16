@@ -11,7 +11,7 @@ The F9 Productions website now includes an AI-powered chatbot using the DHTMLX C
 - **Embedded Chat Widget**: A chat button appears on every page of the website, which opens a chat window when clicked
 - **Multiple AI Models**: Support for various AI models through OpenRouter, including Claude, GPT-4, Gemini, and more
 - **Markdown Support**: The chatbot can display rich text formatting, links, and structured content
-- **Typing Animation**: Provides a realistic typing effect when the AI is generating responses
+- **Enhanced Typing Animation**: Provides a realistic typing effect with customizable styling when the AI is generating responses
 - **Mobile-Friendly**: The chat interface is responsive and works well on mobile devices
 
 ## Configuration
