@@ -124,6 +124,8 @@ export default function ChatbotUI() {
           content: val
         });
 
+        console.log('Sending chat request to API...');
+        
         // Call the API
         const response = await fetch("/api/chatbot", {
           method: "POST",
@@ -136,9 +138,12 @@ export default function ChatbotUI() {
         });
 
         if (!response.ok) {
-          throw new Error("API error");
+          const errorText = await response.text();
+          console.error('API response not ok:', response.status, errorText);
+          throw new Error(`API error: ${response.status} ${errorText}`);
         }
 
+        console.log('Received API response');
         const data = await response.json() as ApiResponse;
         
         // Ensure typing indicator shows for at least minTypingDuration
@@ -162,15 +167,15 @@ export default function ChatbotUI() {
           },
         });
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error in chatbot communication:", error);
         // Clear typing indicator
         setIsTyping(false);
         setTyping(false);
 
-        // Error message
+        // Error message with more helpful information
         appendMsg({
           type: 'text',
-          content: { text: "Sorry, I encountered an error while processing your request. Please try again later." },
+          content: { text: "Sorry, I encountered an error while processing your request. This is likely due to a missing or invalid API key. Please check the console for more details and ensure your OpenRouter API key is correctly set in the .env.local file." },
           position: 'left',
           user: {
             avatar: '/f9-avatar.svg',
