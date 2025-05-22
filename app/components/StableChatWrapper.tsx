@@ -236,10 +236,13 @@ export default function StableChatWrapper() {
   // Error boundary functionality
   useEffect(() => {
     const errorHandler = (event: ErrorEvent) => {
-      // Check if the error is from the ChatUI component
+      // Check if the error is from the ChatUI component or contains specific error patterns
       if (event.message.includes('chatui') || 
           event.error?.stack?.includes('chatui') ||
-          event.message.includes('not a function')) {
+          event.message.includes('not a function') ||
+          event.message.includes('p is not a function') ||
+          event.message.includes('TypeError') ||
+          event.message.includes('undefined is not a function')) {
         console.error('ChatUI error detected, falling back to stable implementation', event);
         setHasError(true);
         // Prevent the error from propagating

@@ -80,10 +80,15 @@ export default function ChatbotUI() {
 
   // Extract text content safely from message
   const getMessageText = (msg: MessageProps): string => {
-    if (typeof msg.content === 'object' && msg.content !== null) {
-      return (msg.content as { text?: string }).text || '';
+    try {
+      if (typeof msg.content === 'object' && msg.content !== null) {
+        return (msg.content as { text?: string }).text || '';
+      }
+      return String(msg.content || '');
+    } catch (e) {
+      console.error("Error extracting message text:", e);
+      return '';
     }
-    return String(msg.content || '');
   };
 
   // Handle sending messages
