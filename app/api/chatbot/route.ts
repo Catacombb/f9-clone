@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
         'X-Title': 'F9 Productions Chatbot' // Your site name
       },
       body: JSON.stringify({
-        model: process.env.OPENROUTER_MODEL || 'anthropic/claude-3-opus', // Can be customized
+        model: process.env.OPENROUTER_MODEL || 'mistralai/mistral-7b-instruct', // Using Mistral 7B Instruct model
         messages: body.messages,
         temperature: 0.7,
         max_tokens: 1000
