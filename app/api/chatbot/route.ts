@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
       try {
         const jsonError = JSON.parse(errorData);
         console.error('Parsed error:', jsonError);
-      } catch (_e) {
+      } catch {
         // It's not JSON, that's fine
       }
       return NextResponse.json(
