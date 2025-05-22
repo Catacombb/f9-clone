@@ -8,37 +8,62 @@ interface ChatRequest {
   }[];
 }
 
+// Define basic interfaces for model responses
+interface ModelChoice {
+  message?: { content?: string };
+  content?: string;
+  text?: string;
+  output?: string;
+  result?: string;
+  answer?: string;
+  response?: string;
+  [key: string]: unknown;
+}
+
+interface ModelResponse {
+  choices?: ModelChoice[];
+  generated_text?: string;
+  [key: string]: unknown;
+}
+
 // Helper to safely extract content from different model formats
-function extractModelContent(data: any): string {
+function extractModelContent(data: unknown): string {
   try {
+    // Type guard to ensure data is an object
+    if (!data || typeof data !== 'object') {
+      throw new Error('Response data is not an object');
+    }
+    
+    const response = data as ModelResponse;
+    
     // Standard OpenAI/Claude format
-    if (data?.choices?.[0]?.message?.content) {
-      return data.choices[0].message.content;
-    }
-    
-    // Alternate format sometimes used by Mistral
-    if (data?.choices?.[0]?.content) {
-      return data.choices[0].content;
-    }
-    
-    // Some models return direct text in generated_text
-    if (data?.generated_text) {
-      return data.generated_text;
-    }
-    
-    // If choices exist but in different format
-    if (data?.choices?.[0] && typeof data.choices[0] === 'object') {
-      // Try to find any property that might contain text content
-      const choice = data.choices[0];
+    if (response.choices && Array.isArray(response.choices) && response.choices.length > 0) {
+      const choice = response.choices[0];
+      
+      // Check for message.content format
+      if (choice.message && typeof choice.message.content === 'string') {
+        return choice.message.content;
+      }
+      
+      // Check for direct content property
+      if (typeof choice.content === 'string') {
+        return choice.content;
+      }
+      
       // Look for common content field names
       for (const key of ['text', 'output', 'result', 'answer', 'response']) {
-        if (typeof choice[key] === 'string' && choice[key].trim()) {
-          return choice[key];
+        if (typeof choice[key] === 'string' && choice[key]) {
+          return choice[key] as string;
         }
       }
       
       // Last resort - stringify the whole object
       return JSON.stringify(choice);
+    }
+    
+    // Some models return direct text in generated_text
+    if (typeof response.generated_text === 'string') {
+      return response.generated_text;
     }
     
     throw new Error('Could not extract content from model response');
