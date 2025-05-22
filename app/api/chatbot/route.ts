@@ -97,6 +97,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Add an additional system message to reinforce staying on topic
+    const messages = [...body.messages];
+    if (messages.length > 0 && messages[0].role === 'system') {
+      // Append to existing system message for stronger instruction
+      messages[0].content += `\n\nIMPORTANT REMINDER: You must ONLY answer questions about F9 Productions, architecture, design, and related services. For any other topics, politely decline to answer and redirect the conversation back to architecture.`;
+    }
+
     // Make request to OpenRouter API
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -108,9 +115,11 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: process.env.OPENROUTER_MODEL || 'mistralai/mistral-7b-instruct',
-        messages: body.messages,
-        temperature: 0.7,
-        max_tokens: 1000
+        messages: messages,
+        temperature: 0.6, // Slightly lower temperature for more consistent, focused responses
+        max_tokens: 1000,
+        top_p: 0.9, // More focused sampling for better adherence to instructions
+        stop_sequences: ["I apologize, but I cannot", "I'm sorry, but I cannot", "Sorry, I cannot"] // Prevent common refusal patterns
       })
     });
 
@@ -146,7 +155,29 @@ export async function POST(req: NextRequest) {
       }
 
       // Extract content using helper function
-      const content = extractModelContent(data);
+      let content = extractModelContent(data);
+      
+      // Check if response appears to be discussing off-topic subjects
+      const offTopicIndicators = [
+        "I cannot provide information about",
+        "I don't have information on",
+        "that falls outside my expertise",
+        "I cannot discuss",
+        "I'm not able to discuss",
+        "I'm not programmed to"
+      ];
+      
+      const architectureTerms = [
+        "architecture", "design", "construction", "building", "home", "house", "renovation", 
+        "remodel", "structure", "F9", "F14", "property", "residential", "commercial"
+      ];
+      
+      // If the response contains refusal language but doesn't mention architecture terms, 
+      // replace with F9-specific refusal
+      if (offTopicIndicators.some(phrase => content.includes(phrase)) && 
+          !architectureTerms.some(term => content.toLowerCase().includes(term))) {
+        content = "I'm specialized in architectural services provided by F9 Productions. I'd be happy to discuss your architectural design needs, home renovations, commercial projects, or our design-build process instead. How can I assist you with your architectural project?";
+      }
       
       // Return the normalized response
       return NextResponse.json({ content });
