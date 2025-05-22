@@ -101,9 +101,9 @@ export default function ChatbotUI() {
         position: 'right',
       });
 
-      // Show typing indicator using both methods to ensure it displays
+      // Show typing indicator - simplified to avoid race conditions
       setIsTyping(true);
-      setTyping(true);
+      // Don't call setTyping(true) redundantly
       
       // Force minimum typing time for better UX
       const typingStartTime = Date.now();
@@ -157,30 +157,59 @@ export default function ChatbotUI() {
           await new Promise(resolve => setTimeout(resolve, minTypingDuration - elapsedTime));
         }
         
-        // Clear typing indicator
-        setIsTyping(false);
-        setTyping(false);
+        // Clear typing indicator - safely with try/catch to prevent errors
+        try {
+          setIsTyping(false);
+          // Only set this if it's defined and callable
+          if (typeof setTyping === 'function') {
+            setTyping(false);
+          }
+        } catch (err) {
+          console.error('Error clearing typing indicator:', err);
+        }
+
+        // Defensive approach - ensure content exists before using it
+        const responseText = data?.content || "I'm sorry, I couldn't generate a proper response.";
 
         // Bot response
-        appendMsg({
-          type: 'text',
-          content: { text: data.content },
-          position: 'left',
-          user: {
-            avatar: '/f9-avatar.svg',
-            name: 'F9 Architecture Assistant'
-          },
-        });
+        try {
+          appendMsg({
+            type: 'text',
+            content: { text: responseText },
+            position: 'left',
+            user: {
+              avatar: '/f9-avatar.svg',
+              name: 'F9 Architecture Assistant'
+            },
+          });
+        } catch (error) {
+          console.error("Error appending bot message:", error);
+          appendMsg({
+            type: 'text',
+            content: { text: "Sorry, I encountered an error displaying my response." },
+            position: 'left',
+            user: {
+              avatar: '/f9-avatar.svg',
+              name: 'F9 Architecture Assistant'
+            },
+          });
+        }
       } catch (error) {
         console.error("Error in chatbot communication:", error);
-        // Clear typing indicator
-        setIsTyping(false);
-        setTyping(false);
+        // Clear typing indicator safely
+        try {
+          setIsTyping(false);
+          if (typeof setTyping === 'function') {
+            setTyping(false);
+          }
+        } catch (err) {
+          console.error('Error clearing typing indicator in catch block:', err);
+        }
 
         // Error message with more helpful information
         appendMsg({
           type: 'text',
-          content: { text: "Sorry, I encountered an error while processing your request. This is likely due to a missing or invalid API key. Please check the console for more details and ensure your OpenRouter API key is correctly set in the .env.local file." },
+          content: { text: "Sorry, I encountered an error while processing your request. This may be due to an issue with the AI model or connection. Please try again later." },
           position: 'left',
           user: {
             avatar: '/f9-avatar.svg',

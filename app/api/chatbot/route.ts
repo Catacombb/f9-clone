@@ -8,6 +8,46 @@ interface ChatRequest {
   }[];
 }
 
+// Helper to safely extract content from different model formats
+function extractModelContent(data: any): string {
+  try {
+    // Standard OpenAI/Claude format
+    if (data?.choices?.[0]?.message?.content) {
+      return data.choices[0].message.content;
+    }
+    
+    // Alternate format sometimes used by Mistral
+    if (data?.choices?.[0]?.content) {
+      return data.choices[0].content;
+    }
+    
+    // Some models return direct text in generated_text
+    if (data?.generated_text) {
+      return data.generated_text;
+    }
+    
+    // If choices exist but in different format
+    if (data?.choices?.[0] && typeof data.choices[0] === 'object') {
+      // Try to find any property that might contain text content
+      const choice = data.choices[0];
+      // Look for common content field names
+      for (const key of ['text', 'output', 'result', 'answer', 'response']) {
+        if (typeof choice[key] === 'string' && choice[key].trim()) {
+          return choice[key];
+        }
+      }
+      
+      // Last resort - stringify the whole object
+      return JSON.stringify(choice);
+    }
+    
+    throw new Error('Could not extract content from model response');
+  } catch (error) {
+    console.error('Error extracting model content:', error);
+    return "I encountered an issue processing the response. Please try again.";
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Parse the request body
@@ -38,11 +78,11 @@ export async function POST(req: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000', // Your site URL
-        'X-Title': 'F9 Productions Chatbot' // Your site name
+        'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+        'X-Title': 'F9 Productions Chatbot'
       },
       body: JSON.stringify({
-        model: process.env.OPENROUTER_MODEL || 'mistralai/mistral-7b-instruct-v0.2', // Using a specific version
+        model: process.env.OPENROUTER_MODEL || 'mistralai/mistral-7b-instruct',
         messages: body.messages,
         temperature: 0.7,
         max_tokens: 1000
@@ -65,49 +105,33 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Parse the response
-    const data = await response.json();
-    
-    // Debug the response format
-    console.log('OpenRouter response structure:', JSON.stringify(data, null, 2));
-    
-    // Enhanced response validation
-    if (!data || !data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
-      console.error('Unexpected response format from OpenRouter:', data);
-      return NextResponse.json(
-        { error: 'Received invalid response format from AI provider' },
-        { status: 500 }
-      );
-    }
-
-    // Handle different response formats safely
-    let content = '';
     try {
-      // Try to get content from standard format
-      if (data.choices[0].message && data.choices[0].message.content) {
-        content = data.choices[0].message.content;
-      } 
-      // Fall back to other possible formats
-      else if (data.choices[0].content) {
-        content = data.choices[0].content;
-      }
-      // Last resort - try to extract text from any format
-      else if (typeof data.choices[0] === 'object') {
-        content = JSON.stringify(data.choices[0]);
-      }
+      // Parse the response
+      const data = await response.json();
       
-      if (!content) {
-        throw new Error('Could not extract content from response');
+      // Debug the response format
+      console.log('OpenRouter response structure:', JSON.stringify(data, null, 2));
+      
+      // Enhanced response validation
+      if (!data) {
+        console.error('Empty response from OpenRouter');
+        return NextResponse.json(
+          { content: "I apologize, but I received an empty response. Please try again." }
+        );
       }
+
+      // Extract content using helper function
+      const content = extractModelContent(data);
+      
+      // Return the normalized response
+      return NextResponse.json({ content });
+      
     } catch (error) {
-      console.error('Error extracting content from response:', error, data);
+      console.error('Error processing OpenRouter response:', error);
       return NextResponse.json(
         { content: "I apologize, but I encountered an unexpected response format. Please try again." }
       );
     }
-    
-    // Return the response
-    return NextResponse.json({ content });
     
   } catch (error) {
     console.error('Error processing request:', error);
